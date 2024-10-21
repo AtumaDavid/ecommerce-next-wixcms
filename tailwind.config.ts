@@ -13,6 +13,9 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
     },
+    colors: {
+      primary: "#f35c7a",
+    },
   },
   plugins: [],
 };
