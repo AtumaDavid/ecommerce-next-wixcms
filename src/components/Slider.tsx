@@ -40,6 +40,7 @@ export default function Slider() {
 
   //     return () => clearInterval(interval);
   //   }, []);
+
   return (
     <div className="h-[calc(100vh-80px)] overflow-hidden">
       <div
