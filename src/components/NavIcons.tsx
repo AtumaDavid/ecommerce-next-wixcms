@@ -11,7 +11,7 @@ export default function NavIcons() {
 
   const router = useRouter();
 
-  const isLoggedIn = false;
+  const isLoggedIn = true;
 
   const handleProfile = () => {
     if (!isLoggedIn) {
