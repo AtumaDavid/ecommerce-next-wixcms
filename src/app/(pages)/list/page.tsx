@@ -35,7 +35,7 @@ export default async function ListPage({
         </div>
       </div>
       {/* filter */}
-      <Filter />
+      {/* <Filter /> */}
       {/* product */}
       <h1 className="mt-12 text-xl font-semibold">
         {category?.collection?.name} For You!
