@@ -2,11 +2,12 @@ import { wixClientServer } from "@/lib/wixClientServer";
 import { products } from "@wix/stores";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import DOMPurify from "isomorphic-dompurify";
+import Pagination from "./Pagination";
 
-const PRODUCT_PER_PAGE = 20;
+const PRODUCT_PER_PAGE = 8;
 
-export default async function ProductList({
+const ProductList = async ({
   categoryId,
   limit,
   searchParams,
@@ -14,17 +15,52 @@ export default async function ProductList({
   categoryId: string;
   limit?: number;
   searchParams?: any;
-}) {
+}) => {
   const wixClient = await wixClientServer();
-  const res = await wixClient.products
+  // Step 1: Fetch all products from the backend based on collection and type
+  const productQuery = wixClient.products
     .queryProducts()
     .eq("collectionIds", categoryId)
+    .hasSome(
+      "productType",
+      searchParams?.type ? [searchParams.type] : ["physical", "digital"]
+    )
+    .gt("priceData.price", searchParams?.min || 0)
+    .lt("priceData.price", searchParams?.max || 999999)
     .limit(limit || PRODUCT_PER_PAGE)
-    .find();
+    .skip(
+      searchParams?.page
+        ? parseInt(searchParams.page) * (limit || PRODUCT_PER_PAGE)
+        : 0
+    );
+
+  // Step 2: Handle sorting if provided
+  if (searchParams?.sort) {
+    const [sortType, sortBy] = searchParams.sort.split(" ");
+
+    if (sortType === "asc") {
+      productQuery.ascending(sortBy);
+    }
+    if (sortType === "desc") {
+      productQuery.descending(sortBy);
+    }
+  }
+
+  // Fetch the product data from the backend
+  const res = await productQuery.find();
+
+  // Step 3: Perform client-side filtering for name-based search
+  const filteredProducts = searchParams?.name
+    ? res.items.filter((product: products.Product) =>
+        (product.name ?? "")
+          .toLowerCase()
+          .includes(searchParams.name.toLowerCase())
+      )
+    : res.items;
 
   return (
     <div className="mt-12 flex gap-x-8 gap-y-16 justify-between flex-wrap">
-      {res.items.map((product: products.Product) => (
+      {filteredProducts.map((product: products.Product) => (
         <Link
           href={"/" + product.slug}
           className="w-full flex flex-col gap-4 sm:w-[45%] lg:w-[22%]"
@@ -36,7 +72,7 @@ export default async function ProductList({
               alt=""
               fill
               sizes="25vw"
-              className="object-cover absolute rounded-md z-10 hover:opacity-0 transition-opacity ease-in duration-500"
+              className="absolute object-cover rounded-md z-0 hover:opacity-0 transition-opacity easy duration-500"
             />
             {product.media?.items && (
               <Image
@@ -44,7 +80,7 @@ export default async function ProductList({
                 alt=""
                 fill
                 sizes="25vw"
-                className="object-cover absolute rounded-md"
+                className="absolute object-cover rounded-md"
               />
             )}
           </div>
@@ -55,22 +91,32 @@ export default async function ProductList({
               {product.price?.price}
             </span>
           </div>
-          {/* <div className="text-sm text-gray-500">{product.description}</div> */}
-          {/* <div
-            className="text-sm text-gray-500"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(product.description || ""),
-            }}
-          /> */}
-          <div
-            className="text-sm text-gray-500 prose prose-sm"
-            dangerouslySetInnerHTML={{ __html: product.description || "" }}
-          />
-          <button className="rounded-2xl  ring-1 ring-primary text-primary py-2 px-4 text-xs hover:bg-primary hover:text-white w-max">
-            Add to cart
+          {product.additionalInfoSections && (
+            <div
+              className="text-sm text-gray-500"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(
+                  product.additionalInfoSections.find(
+                    (section: any) => section.title === "shortDesc"
+                  )?.description || ""
+                ),
+              }}
+            ></div>
+          )}
+          <button className="rounded-2xl ring-1 ring-primary text-lama w-max py-2 px-4 text-xs hover:bg-primary hover:text-white">
+            Add to Cart
           </button>
         </Link>
       ))}
+      {searchParams?.cat || searchParams?.name ? (
+        <Pagination
+          currentPage={res.currentPage || 0}
+          hasPrev={res.hasPrev()}
+          hasNext={res.hasNext()}
+        />
+      ) : null}
     </div>
   );
-}
+};
+
+export default ProductList;
