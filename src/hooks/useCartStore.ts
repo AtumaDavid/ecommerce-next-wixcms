@@ -1,5 +1,5 @@
 import { WixClient } from "@/context/wixContext";
-import { cart, currentCart } from "@wix/ecom";
+import { currentCart } from "@wix/ecom";
 import { create } from "zustand";
 
 type CartState = {
@@ -29,6 +29,8 @@ export const useCartStore = create<CartState>((set) => ({
         counter: cart?.lineItems.length || 0,
       });
     } catch (err) {
+      console.error("Failed to get cart:", err);
+    } finally {
       set((prev) => ({ ...prev, isLoading: false }));
     }
   },

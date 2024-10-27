@@ -27,9 +27,9 @@ export default function NavIcons() {
     }
   };
 
-  const handleCart = () => {
-    setIsCartOpen((prev) => !prev);
-  };
+  // const handleCart = () => {
+  //   setIsCartOpen((prev) => !prev);
+  // };
 
   // AUTH WITH WIX-MANAGED AUTH
 
@@ -56,7 +56,8 @@ export default function NavIcons() {
     router.push(logoutUrl);
   };
 
-  const { cart, counter, getCart } = useCartStore();
+  // const { cart, counter, getCart } = useCartStore();
+  const { counter, getCart } = useCartStore();
 
   useEffect(() => {
     getCart(wixClient);

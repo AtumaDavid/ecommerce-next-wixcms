@@ -264,7 +264,7 @@ const LoginPage = () => {
               // console.log("Switched to Register mode.");
             }}
           >
-            Don't have an account?
+            Don&apos;t have an account?
           </div>
         )}
         {mode === MODE.REGISTER && (

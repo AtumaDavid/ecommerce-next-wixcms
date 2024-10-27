@@ -2,7 +2,7 @@
 import { useCartStore } from "@/hooks/useCartStore";
 import { useWixClient } from "@/hooks/useWixClient";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React from "react";
 import { media as wixMedia } from "@wix/sdk";
 
 export default function CartModal() {
