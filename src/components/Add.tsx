@@ -51,7 +51,7 @@ export default function Add({
           </div>
           <div>
             <span className="text-primary">{stockNumber} items</span> left!,{" "}
-            <br /> Don't miss it!
+            <br /> Don&apos;t miss it!
           </div>
         </div>
         <button
